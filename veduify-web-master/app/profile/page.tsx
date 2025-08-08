@@ -42,7 +42,7 @@ export default function ProfilePage() {
         description: 'Your profile has been successfully updated.',
       });
       setIsEditing(false);
-    } catch (error) {
+    } catch (_error) {
       toast('Error', {
         description: 'Failed to update profile. Please try again.',
       });
