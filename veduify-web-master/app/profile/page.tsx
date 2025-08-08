@@ -43,6 +43,7 @@ export default function ProfilePage() {
       });
       setIsEditing(false);
     } catch (_error) {
+        console.error(_error); // <-- Now it's used
       toast('Error', {
         description: 'Failed to update profile. Please try again.',
       });
