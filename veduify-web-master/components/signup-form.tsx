@@ -21,9 +21,13 @@ export function SignupForm({
   const [username, setUsername] = useState('');
   const [error, setError] = useState('');
   const { signup } = useAuth();
+  const { user} = useAuth(); 
   const router = useRouter();
-
-
+  const isAuthenticated = Boolean(user);
+  
+  if (isAuthenticated) {
+        router.push('/dashboard'); // Redirect to login if not authenticated
+      }
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
