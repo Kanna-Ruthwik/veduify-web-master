@@ -15,9 +15,6 @@ export default function Home() {
           height={500}
           priority
         />
-        <h1 className="text-4xl sm:text-5xl font-extrabold text-center sm:text-left">
-          Welcome to <span className="text-primary">Veduify!</span>
-        </h1>
 
         <div className="flex gap-4 items-center flex-col sm:flex-row">
           <a

@@ -2,7 +2,7 @@
 import { useState } from "react"
 import { signInWithEmailAndPassword } from "firebase/auth"
 import { auth } from "@/lib/firebase" // adjust path if needed
-
+import { useAuth } from '@/contexts/AuthContext';
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -20,7 +20,12 @@ export function LoginForm({
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const router = useRouter()
-
+  const { user} = useAuth(); 
+  const isAuthenticated = Boolean(user);
+  
+  if (isAuthenticated) {
+        router.push('/dashboard'); // Redirect to login if not authenticated
+      }
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
