@@ -413,8 +413,8 @@ export default function CoursePage({ params: paramsPromise }: CoursePageProps) {
                             variant="outline"
                             size="sm"
                             onClick={() => {
-                              if (params.id) {
-                                window.location.href = `/course_edit/${params.id}`;
+                              if (selectedSubtopic) {
+                                window.location.href = `/course_edit/${encodeURIComponent(selectedSubtopic)}`;
                               }
                             }}
                             disabled={isGenerating}
