@@ -1,12 +1,18 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { VeduMarkRenderer } from "@/components/VeduMarkRenderer";
 import { parseVeduMark } from "@/lib/vedumark-parser";
 import { useParams, useRouter } from "next/navigation";
 import { db } from "@/lib/firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { Button } from "@/components/ui/button";
+
+// 👇 match the type used in your parser/renderer
+type VeduMarkDocument = {
+  content: any[];
+  metadata: Record<string, any>;
+};
 
 export default function VeduMarkEditorPage() {
   const params = useParams();
@@ -15,6 +21,7 @@ export default function VeduMarkEditorPage() {
 
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(true);
+  const [parseError, setParseError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchContent = async () => {
@@ -35,7 +42,17 @@ export default function VeduMarkEditorPage() {
     fetchContent();
   }, [subtopic]);
 
-  const blocks = parseVeduMark(input);
+  // ✅ Safe parsing into full document
+  const document: VeduMarkDocument = useMemo(() => {
+    try {
+      const parsed = parseVeduMark(input); // should return { content, metadata }
+      setParseError(null);
+      return parsed;
+    } catch (err: any) {
+      setParseError(err.message || "Invalid VeduMark syntax");
+      return { content: [], metadata: {} }; // fallback doc
+    }
+  }, [input]);
 
   const handleSave = async () => {
     try {
@@ -43,7 +60,7 @@ export default function VeduMarkEditorPage() {
         content: input,
         updatedAt: Date.now(),
       });
-      router.push(`/course/${subtopic}`); // 👈 back to course page
+      router.push(`/dashboard/course/${params.id}`);
     } catch (err) {
       console.error("Error saving content:", err);
     }
@@ -65,14 +82,22 @@ export default function VeduMarkEditorPage() {
         />
         <div className="mt-3 flex gap-2">
           <Button onClick={handleSave}>Save</Button>
-          <Button variant="outline" onClick={() => router.back()}>Cancel</Button>
+          <Button variant="outline" onClick={() => router.back()}>
+            Cancel
+          </Button>
         </div>
       </div>
 
       {/* Renderer */}
       <div className="p-4 overflow-auto">
         <h2 className="text-lg font-semibold mb-2">Preview</h2>
-        <VeduMarkRenderer doc={blocks} />
+        {parseError ? (
+          <div className="text-red-600 bg-red-50 border border-red-200 p-3 rounded">
+            ⚠️ Preview error: {parseError}
+          </div>
+        ) : (
+          <VeduMarkRenderer doc={document} />
+        )}
       </div>
     </div>
   );

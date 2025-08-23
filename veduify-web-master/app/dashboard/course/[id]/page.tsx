@@ -30,6 +30,7 @@ import {
   Download,
   Share2,
 } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 
 interface SyllabusTopic {
@@ -62,6 +63,21 @@ interface CoursePageProps {
 
 import { use } from "react"
 
+type VeduMarkDocument = {
+  content: any[];
+  metadata: Record<string, any>;
+};
+
+function safeParseVeduMark(input: string): { doc: VeduMarkDocument; error: string | null } {
+  try {
+    const parsed = parseVeduMark(input); // returns { content, metadata }
+    return { doc: parsed, error: null };
+  } catch (err: any) {
+    return { doc: { content: [], metadata: {} }, error: err.message || "Invalid VeduMark syntax" };
+  }
+}
+
+
 export default function CoursePage({ params: paramsPromise }: CoursePageProps) {
   const params = use(paramsPromise); // 👈 unwrap the Promise
   const [course, setCourse] = useState<StaticCourse | null>(null)
@@ -75,8 +91,7 @@ export default function CoursePage({ params: paramsPromise }: CoursePageProps) {
   const [syllabus, setSyllabus] = useState<SyllabusTopic[]>(course?.syllabus || [])
   const [practiceProblems, setPracticeProblems] = useState<string[]>([])
   const [showPractice, setShowPractice] = useState(false)
-
-
+  const router = useRouter()
   useEffect(() => {
     const fetchCourse = async (userId: string) => {
       try {
@@ -130,6 +145,10 @@ export default function CoursePage({ params: paramsPromise }: CoursePageProps) {
   const toggleTopicExpansion = (topicId: string) => {
     setSyllabus((prev) => prev.map((topic) => (topic.id === topicId ? { ...topic, expanded: !topic.expanded } : topic)))
   }
+
+ const editSubtopic = (subtopic: string) => {
+  router.push(`${params.id}/course_edit/${encodeURIComponent(subtopic)}`);
+};
 
 
   const handleSubtopicClick = async (subtopic: string) => {
@@ -234,7 +253,7 @@ export default function CoursePage({ params: paramsPromise }: CoursePageProps) {
     )
   }
   else {
-    const blocks = parseVeduMark(aiContent);
+const { doc: blocks, error } = safeParseVeduMark(aiContent);
 
     return (
       <div className="min-h-screen bg-background">
@@ -253,7 +272,8 @@ export default function CoursePage({ params: paramsPromise }: CoursePageProps) {
                   </div>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+              </div>
+              <div className="flex items-center gap-2 mt-2">
                 <Button variant="outline" size="sm">
                   <Share2 className="h-4 w-4 mr-2" />
                   Share
@@ -263,7 +283,6 @@ export default function CoursePage({ params: paramsPromise }: CoursePageProps) {
                   Export
                 </Button>
               </div>
-            </div>
             <div className="mt-4">
               <div className="flex items-center justify-between text-sm text-muted-foreground mb-2">
                 <span>Course Progress</span>
@@ -377,8 +396,9 @@ export default function CoursePage({ params: paramsPromise }: CoursePageProps) {
                         <FileText className="h-5 w-5" />
                         {selectedSubtopic || "Select a topic to begin"}
                       </CardTitle>
+                    </div>
                       {selectedSubtopic && (
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 mt-2">
                           <Button
                             variant="outline"
                             size="sm"
@@ -412,11 +432,7 @@ export default function CoursePage({ params: paramsPromise }: CoursePageProps) {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => {
-                              if (selectedSubtopic) {
-                                window.location.href = `/course_edit/${encodeURIComponent(selectedSubtopic)}`;
-                              }
-                            }}
+                            onClick={() => editSubtopic(selectedSubtopic!)}
                             disabled={isGenerating}
                           >
                             Edit
@@ -424,7 +440,6 @@ export default function CoursePage({ params: paramsPromise }: CoursePageProps) {
 
                         </div>
                       )}
-                    </div>
                   </CardHeader>
                   <CardContent>
                     {!selectedSubtopic ? (
@@ -441,6 +456,10 @@ export default function CoursePage({ params: paramsPromise }: CoursePageProps) {
                         <h3 className="text-lg font-semibold mb-2">Generating Content...</h3>
                         <p className="text-muted-foreground">Creating personalized notes for this topic.</p>
                       </div>
+                    ) : error ? (
+  <div className="text-red-600 bg-red-50 border border-red-200 p-3 rounded">
+    ⚠️ Error rendering content: {error}
+  </div>
                     ) : (
                       <div className="prose prose-sm max-w-none">
                         <VeduMarkRenderer doc={blocks} />
