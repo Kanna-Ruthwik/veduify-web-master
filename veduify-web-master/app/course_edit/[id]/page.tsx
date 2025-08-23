@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 export default function VeduMarkEditorPage() {
   const params = useParams();
   const router = useRouter();
-  const subtopic = params.subtopic as string;
+  const subtopic = decodeURIComponent(params.subtopic as string);
 
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(true);
