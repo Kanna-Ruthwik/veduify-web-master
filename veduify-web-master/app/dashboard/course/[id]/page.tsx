@@ -31,7 +31,7 @@ import {
   Share2,
 } from "lucide-react"
 import { useRouter } from "next/navigation"
-
+import { VeduMarkDocument } from "@/components/VeduMarkRenderer"
 
 interface SyllabusTopic {
   id: string
@@ -63,18 +63,17 @@ interface CoursePageProps {
 
 import { use } from "react"
 
-type VeduMarkDocument = {
-  content: any[];
-  metadata: Record<string, any>;
-};
-
 function safeParseVeduMark(input: string): { doc: VeduMarkDocument; error: string | null } {
   try {
     const parsed = parseVeduMark(input); // returns { content, metadata }
     return { doc: parsed, error: null };
-  } catch (err: any) {
-    return { doc: { content: [], metadata: {} }, error: err.message || "Invalid VeduMark syntax" };
-  }
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      return { doc: { content: [], metadata: {} }, error: err.message };
+    } else {
+      return { doc: { content: [], metadata: {} }, error: "Invalid VeduMark syntax" };
+    }
+}
 }
 
 

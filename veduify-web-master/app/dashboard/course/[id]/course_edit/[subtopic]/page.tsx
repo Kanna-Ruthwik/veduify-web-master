@@ -7,12 +7,7 @@ import { useParams, useRouter } from "next/navigation";
 import { db } from "@/lib/firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { Button } from "@/components/ui/button";
-
-// 👇 match the type used in your parser/renderer
-type VeduMarkDocument = {
-  content: any[];
-  metadata: Record<string, any>;
-};
+import { VeduMarkDocument } from "@/components/VeduMarkRenderer";
 
 export default function VeduMarkEditorPage() {
   const params = useParams();
@@ -48,9 +43,13 @@ export default function VeduMarkEditorPage() {
       const parsed = parseVeduMark(input); // should return { content, metadata }
       setParseError(null);
       return parsed;
-    } catch (err: any) {
-      setParseError(err.message || "Invalid VeduMark syntax");
-      return { content: [], metadata: {} }; // fallback doc
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setParseError(err.message);
+      } else {
+        setParseError("Invalid VeduMark syntax");
+      }
+      return { content: [], metadata: {} };
     }
   }, [input]);
 
