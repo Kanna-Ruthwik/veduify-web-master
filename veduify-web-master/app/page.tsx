@@ -15,6 +15,7 @@ export default function Home() {
           height={500}
           priority
         />
+        <iframe src="https://drive.google.com/file/d/1WZ-I2NT0vUeDxOIx4wsTUB9GLoE8dIu2/preview" width="640" height="480" allow="autoplay"></iframe>
 
         <div className="flex gap-4 items-center flex-col sm:flex-row">
           <a
