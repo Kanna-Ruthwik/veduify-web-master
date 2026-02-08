@@ -4,7 +4,7 @@ const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY!);
 
 export async function generateSyllabus(courseName: string, credits: number): Promise<string> {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
     const prompt = `Generate a brief and structured course syllabus for ${courseName} day-wise for ${credits} course. 
             The output should be in JSON array format without any extra text, which consists of Main Topic, Subtopics. 
             Example format: 
@@ -24,7 +24,7 @@ export async function generateSyllabus(courseName: string, credits: number): Pro
 
 export async function generateCourseResources(courseName: string, syllabus: string) {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     const prompt = `Based on the following course syllabus for "${courseName}", generate:
     1. A list of relevant YouTube videos and playlists (with actual URLs)
@@ -88,7 +88,7 @@ export async function generateResources(course: {
   videos: string[];
 }> {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
     const prompt = `Based on this course: ${course.courseName} (${course.credits} credits), suggest learning resources in this format:
     PDFs:
     - [list 5 relevant PDFs/documents]
@@ -115,7 +115,7 @@ export async function generateResources(course: {
 
 export async function generateTopicContent(subtopic: string): Promise<string> {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     const prompt = `
 Write a structured and detailed explanation for the ${subtopic}.
